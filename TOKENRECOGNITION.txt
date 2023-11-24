@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+enum TokenType {
+    IDENTIFIER,
+    CONSTANT,
+    OPERATOR
+};
+struct Token {
+    enum TokenType type;
+    char value[50];
+};
+int isOperator(char ch) {
+    char operators[] = {'+', '-', '*', '/', '=', '<', '>', '!', '&', '|', '^'};
+    for (int i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
+        if (ch == operators[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+int isIdentifierChar(char ch) {
+    return isalnum(ch) || ch == '_';
+}
+struct Token getNextToken(char *input, int *index) {
+    struct Token token;
+    int i = 0;
+    while (input[*index] == ' ' || input[*index] == '\t') {
+        (*index)++;
+    }
+    if (input[*index] == '\0') {
+        token.type = -1; 
+        return token;
+    }
+    if (isOperator(input[*index])) {
+        token.type = OPERATOR;
+        token.value[i++] = input[(*index)++];
+        token.value[i] = '\0';
+        return token;
+    }
+    if (isalpha(input[*index]) || input[*index] == '_') {
+        token.type = IDENTIFIER;
+        while (isIdentifierChar(input[*index])) {
+            token.value[i++] = input[(*index)++];
+        }
+        token.value[i] = '\0';
+        return token;
+    }
+    if (isdigit(input[*index])) {
+        token.type = CONSTANT;
+        while (isdigit(input[*index]) || input[*index] == '.') {
+            token.value[i++] = input[(*index)++];
+        }
+        token.value[i] = '\0';
+        return token;
+    }
+    token.type = -1;
+    return token;
+}
+
+int main() {
+    char input[1000];
+    printf("Enter input: ");
+    fgets(input, sizeof(input), stdin);
+
+    int index = 0;
+    struct Token token;
+
+    printf("Identified Tokens:\n");
+
+    do {
+        token = getNextToken(input, &index);
+        switch (token.type) {
+            case IDENTIFIER:
+                printf("Type: Identifier, Value: %s\n", token.value);
+                break;
+            case CONSTANT:
+                printf("Type: Constant, Value: %s\n", token.value);
+                break;
+            case OPERATOR:
+                printf("Type: Operator, Value: %s\n", token.value);
+                break;
+            case -1:
+                break;
+            default:
+                printf("Unknown token type\n");
+                return 1;
+        }
+
+    } while (token.type != -1);
+
+    return 0;
+}
