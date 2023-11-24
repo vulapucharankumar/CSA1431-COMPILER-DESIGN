@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct SymbolEntry {
+    char name[30];
+    char type[20];
+} SymbolEntry;
+typedef struct SymbolTable {
+    SymbolEntry* entries;
+    int size;
+    int capacity;
+} SymbolTable;
+void initializeSymbolTable(SymbolTable* symbolTable, int capacity) {
+    symbolTable->entries = (SymbolEntry*)malloc(sizeof(SymbolEntry) * capacity);
+    symbolTable->size = 0;
+    symbolTable->capacity = capacity;
+}
+void insertEntry(SymbolTable* symbolTable, const char* name, const char* type) {
+    if (symbolTable->size < symbolTable->capacity) {
+        SymbolEntry* entry = &symbolTable->entries[symbolTable->size];
+        strcpy(entry->name, name);
+        strcpy(entry->type, type);
+        symbolTable->size++;
+        printf("Entry inserted: %s - %s\n", name, type);
+    } else {
+        printf("Symbol table is full. Cannot insert more entries.\n");
+    }
+}
+int searchEntry(SymbolTable* symbolTable, const char* name) {
+    for (int i = 0; i < symbolTable->size; i++) {
+        if (strcmp(symbolTable->entries[i].name, name) == 0) {
+            printf("Entry found: %s - %s\n", symbolTable->entries[i].name, symbolTable->entries[i].type);
+            return 1;
+        }
+    }
+    printf("Entry not found: %s\n", name);
+    return 0;
+}
+void displaySymbolTable(SymbolTable* symbolTable) {
+    printf("Symbol Table:\n");
+    for (int i = 0; i < symbolTable->size; i++) {
+        printf("%s - %s\n", symbolTable->entries[i].name, symbolTable->entries[i].type);
+    }
+}
+void freeSymbolTable(SymbolTable* symbolTable) {
+    free(symbolTable->entries);
+    symbolTable->size = 0;
+    symbolTable->capacity = 0;
+}
+int main() {
+    SymbolTable symbolTable;
+    initializeSymbolTable(&symbolTable, 10);
+
+    insertEntry(&symbolTable, "variable1", "int");
+    insertEntry(&symbolTable, "variable2", "float");
+    insertEntry(&symbolTable, "function1", "void");
+
+    searchEntry(&symbolTable, "variable1");
+    searchEntry(&symbolTable, "variable3");
+
+    displaySymbolTable(&symbolTable);
+
+    freeSymbolTable(&symbolTable);
+
+    return 0;
+}
